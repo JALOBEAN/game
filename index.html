@@ -1,0 +1,282 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>99 Nights in the Forest - 2D Day/Night Cycle</title> 
+    <style> 
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #020502; 
+            overflow: hidden; 
+            font-family: 'Courier New', monospace; 
+            user-select: none; 
+        } 
+        #ui { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            color: #ff3333; 
+            font-size: 24px; 
+            font-weight: bold; 
+            text-shadow: 2px 2px 4px #000; 
+        } 
+        #timer { 
+            position: absolute; 
+            top: 60px; 
+            left: 20px; 
+            color: #ffffff; 
+            font-size: 18px; 
+            font-weight: bold; 
+            text-shadow: 2px 2px 4px #000; 
+        } 
+        #instructions { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            color: #ffffff; 
+            font-size: 14px; 
+            background: rgba(0, 0, 0, 0.7); 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            text-align: center; 
+        } 
+        canvas { 
+            display: block; 
+        } 
+    </style> 
+</head> 
+<body> 
+    <div id="ui">NIGHT 1 / 99</div> 
+    <div id="timer">Time until Day: 30s</div> 
+    <div id="instructions">Use WASD / Arrows to Move | Aim Flashlight to see Trees and Monsters</div> 
+    <canvas id="gameCanvas"></canvas> 
+    <script> 
+        const canvas = document.getElementById("gameCanvas"); 
+        const ctx = canvas.getContext("2d"); 
+
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight; 
+
+        function resize() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+        } 
+        window.addEventListener("resize", resize); 
+
+        // --- GAME VARIABLES --- 
+        let currentNight = 1; 
+        let isDaytime = false; 
+        let timeRemaining = 30; 
+        const FLASHLIGHT_RANGE = 300; 
+        const FLASHLIGHT_ANGLE_HALF = Math.PI / 6; 
+
+        const player = { 
+            x: window.innerWidth / 2, 
+            y: window.innerHeight / 2, 
+            size: 8, 
+            speed: 3, 
+            angle: 0 
+        }; 
+
+        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 }; 
+        const keys = {}; 
+        const trees = []; 
+        let monsters = []; 
+        let gameOver = false;
+
+        // --- CYCLE TIMER --- 
+        setInterval(() => { 
+            if (gameOver) return;
+            timeRemaining--; 
+            if (timeRemaining <= 0) { 
+                isDaytime = !isDaytime; 
+                timeRemaining = 30; 
+                if (!isDaytime) { 
+                    currentNight++; 
+                    if (currentNight > 99) { 
+                        alert("YOU SURVIVED ALL 99 NIGHTS! YOU WIN!"); 
+                        currentNight = 1; 
+                    } 
+                    document.getElementById("ui").innerText = "NIGHT " + currentNight + " / 99"; 
+                    document.getElementById("ui").style.color = "#ff3333"; 
+                    spawnMonsters(); 
+                } else { 
+                    document.getElementById("ui").innerText = "DAYTIME - SAFE"; 
+                    document.getElementById("ui").style.color = "#33ff33"; 
+                } 
+            } 
+            const phaseName = isDaytime ? "Night" : "Day"; 
+            document.getElementById("timer").innerText = `Time until ${phaseName}: ${timeRemaining}s`; 
+        }, 1000); 
+
+        // --- WORLD GENERATION --- 
+        function generateWorld() { 
+            trees.length = 0; 
+            for (let i = 0; i < 120; i++) { 
+                trees.push({ 
+                    x: (Math.random() - 0.5) * 3000 + player.x, 
+                    y: (Math.random() - 0.5) * 3000 + player.y, 
+                    radius: Math.random() * 15 + 10 
+                }); 
+            } 
+            spawnMonsters(); 
+        } 
+
+        function spawnMonsters() { 
+            monsters = []; 
+            for (let i = 0; i < 20; i++) { 
+                monsters.push({ 
+                    x: (Math.random() - 0.5) * 3000 + player.x, 
+                    y: (Math.random() - 0.5) * 3000 + player.y, 
+                    speed: 1.2 + Math.random() * 0.8 
+                }); 
+            } 
+        } 
+
+        function resetGame() { 
+            gameOver = true;
+            // Short delay prevents the browser alert loop from freezing mouse tracking instantly
+            setTimeout(() => {
+                alert("The creatures caught you in the dark! Restarting from Night 1..."); 
+                currentNight = 1; 
+                isDaytime = false; 
+                timeRemaining = 30; 
+                document.getElementById("ui").innerText = "NIGHT " + currentNight + " / 99"; 
+                document.getElementById("ui").style.color = "#ff3333"; 
+                document.getElementById("timer").innerText = "Time until Day: 30s"; 
+                player.x = canvas.width / 2; 
+                player.y = canvas.height / 2; 
+                generateWorld(); 
+                gameOver = false;
+            }, 10);
+        } 
+
+        // --- INPUTS --- 
+        window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true); 
+        window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false); 
+        window.addEventListener("mousemove", (e) => { 
+            mouse.x = e.clientX; 
+            mouse.y = e.clientY; 
+        }); 
+
+        // --- GAME LOGIC --- 
+        function update() { 
+            if (gameOver) return;
+
+            let dx = 0; 
+            let dy = 0; 
+            if (keys["w"] || keys["arrowup"]) dy -= player.speed; 
+            if (keys["s"] || keys["arrowdown"]) dy += player.speed; 
+            if (keys["a"] || keys["arrowleft"]) dx -= player.speed; 
+            if (keys["d"] || keys["arrowright"]) dx += player.speed; 
+
+            player.x += dx; 
+            player.y += dy; 
+            player.angle = Math.atan2(mouse.y - canvas.height / 2, mouse.x - canvas.width / 2); 
+
+            for (let i = 0; i < monsters.length; i++) {
+                let m = monsters[i];
+                let mDx = m.x - player.x; 
+                let mDy = m.y - player.y; 
+                let dist = Math.sqrt(mDx * mDx + mDy * mDy); 
+
+                if (dist < (player.size + 6)) { 
+                    resetGame(); 
+                    return; 
+                } 
+
+                if (isDaytime) continue; 
+
+                let isLit = false; 
+                if (dist < FLASHLIGHT_RANGE) { 
+                    let angleToMonster = Math.atan2(mDy, mDx); 
+                    let angleDiff = angleToMonster - player.angle; 
+                    while (angleDiff < -Math.PI) angleDiff += Math.PI * 2; 
+                    while (angleDiff > Math.PI) angleDiff -= Math.PI * 2; 
+
+                    if (Math.abs(angleDiff) < FLASHLIGHT_ANGLE_HALF) { 
+                        isLit = true; 
+                    } 
+                } 
+
+                if (isLit) { 
+                    m.x += (mDx / dist) * (m.speed * 2.5); 
+                    m.y += (mDy / dist) * (m.speed * 2.5); 
+                } else if (dist < 800) { 
+                    m.x -= (mDx / dist) * m.speed; 
+                    m.y -= (mDy / dist) * m.speed; 
+                } 
+            } 
+        } 
+
+        // --- DRAW SCREEN --- 
+        function draw() { 
+            ctx.fillStyle = isDaytime ? "#1a2b1a" : "#020502"; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height); 
+
+            ctx.save(); 
+            ctx.translate(canvas.width / 2 - player.x, canvas.height / 2 - player.y); 
+
+            // 1. Draw Flashlight Cone 
+            if (!isDaytime) { 
+                ctx.save(); 
+                ctx.beginPath(); 
+                ctx.moveTo(player.x, player.y); 
+                ctx.arc(player.x, player.y, FLASHLIGHT_RANGE, player.angle - FLASHLIGHT_ANGLE_HALF, player.angle + FLASHLIGHT_ANGLE_HALF); 
+                ctx.closePath(); 
+                let gradient = ctx.createRadialGradient(player.x, player.y, 10, player.x, player.y, FLASHLIGHT_RANGE); 
+                gradient.addColorStop(0, "rgba(255, 255, 210, 0.4)"); 
+                gradient.addColorStop(1, "rgba(255, 255, 210, 0)"); 
+                ctx.fillStyle = gradient; 
+                ctx.fill(); 
+                ctx.restore(); 
+            } 
+
+            // 2. Draw Trees 
+            trees.forEach(tree => { 
+                ctx.beginPath(); 
+                ctx.arc(tree.x, tree.y, tree.radius, 0, Math.PI * 2); 
+                ctx.fillStyle = isDaytime ? "#2d4a2d" : "#142414"; 
+                ctx.fill(); 
+            }); 
+
+            // 3. Draw Monsters 
+            monsters.forEach(m => { 
+                if (isDaytime) { 
+                    ctx.fillStyle = "#3a1a1a"; 
+                    ctx.beginPath(); 
+                    ctx.arc(m.x, m.y, 8, 0, Math.PI * 2); 
+                    ctx.fill(); 
+                } 
+                ctx.fillStyle = "#ff1111"; 
+                ctx.beginPath(); 
+                ctx.arc(m.x - 3, m.y, 2, 0, Math.PI * 2); 
+                ctx.fill(); 
+                ctx.beginPath(); 
+                ctx.arc(m.x + 3, m.y, 2, 0, Math.PI * 2); 
+                ctx.fill(); 
+            }); 
+
+            // 4. Draw Player 
+            ctx.beginPath(); 
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); 
+            ctx.fillStyle = "#ffffff"; 
+            ctx.fill(); 
+
+            ctx.restore(); 
+        } 
+
+        function loop() { 
+            update(); 
+            draw(); 
+            requestAnimationFrame(loop); 
+        } 
+
+        generateWorld(); 
+        loop(); 
+    </script> 
+</body> 
+</html>
