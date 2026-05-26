@@ -57,6 +57,36 @@ canvas {
     text-shadow: 2px 2px 4px black;
 }
 
+#battery {
+    position: absolute;
+    top: 155px;
+    left: 20px;
+    color: #ffee88;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px black;
+}
+
+#inventory {
+    position: absolute;
+    top: 185px;
+    left: 20px;
+    color: #88ff88;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px black;
+}
+
+#eventText {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #ff4444;
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 2px 2px 8px black;
+}
+
 #instructions {
     position: absolute;
     bottom: 20px;
@@ -77,12 +107,17 @@ canvas {
 <div id="timer">Time until Day: 30s</div>
 <div id="stamina">Stamina: 100</div>
 <div id="ammo">Darts: 5 / 5</div>
+<div id="battery">Flashlight Battery: 100%</div>
+<div id="inventory">Medkits: 1 | Batteries: 1</div>
+<div id="eventText"></div>
 
 <div id="instructions">
-WASD / Arrows = Move |
+WASD = Move |
 SHIFT = Sprint |
 Mouse = Aim |
-Click = Shoot Sedation Dart
+Click = Shoot |
+F = Use Battery |
+Q = Use Medkit
 </div>
 
 <canvas id="gameCanvas"></canvas>
@@ -97,43 +132,49 @@ function resize() {
     canvas.height = window.innerHeight;
 }
 resize();
+
 window.addEventListener("resize", resize);
 
-// ================= GAME VARIABLES =================
+// ================= GAME =================
 
 let currentNight = 1;
 let isDaytime = false;
 let timeRemaining = 30;
 let gameOver = false;
 
-const FLASHLIGHT_RANGE = 300;
-const FLASHLIGHT_ANGLE_HALF = Math.PI / 6;
+let bloodMoon = false;
+let fogNight = false;
 
 // ================= PLAYER =================
 
 const player = {
-    x: 0,
-    y: 0,
+    x: canvas.width / 2,
+    y: canvas.height / 2,
     size: 8,
     angle: 0
 };
 
-player.x = canvas.width / 2;
-player.y = canvas.height / 2;
-
 // ================= INPUT =================
+
+const keys = {};
 
 const mouse = {
     x: canvas.width / 2,
     y: canvas.height / 2
 };
 
-const keys = {};
-
 // ================= STAMINA =================
 
 let stamina = 100;
 const MAX_STAMINA = 100;
+
+// ================= FLASHLIGHT =================
+
+let flashlightBattery = 100;
+const MAX_BATTERY = 100;
+
+const FLASHLIGHT_RANGE = 300;
+const FLASHLIGHT_ANGLE_HALF = Math.PI / 6;
 
 // ================= GUN =================
 
@@ -145,10 +186,25 @@ const MAX_AMMO = 5;
 let reloading = false;
 const RELOAD_TIME = 5000;
 
+// ================= INVENTORY =================
+
+let batteryPacks = 1;
+let medkits = 1;
+
 // ================= WORLD =================
 
 const trees = [];
 let monsters = [];
+let pickups = [];
+
+// ================= CABIN =================
+
+const cabin = {
+    x: 300,
+    y: 300,
+    width: 120,
+    height: 120
+};
 
 // ================= WORLD GENERATION =================
 
@@ -159,8 +215,8 @@ function generateWorld() {
     for (let i = 0; i < 120; i++) {
 
         trees.push({
-            x: (Math.random() - 0.5) * 3000 + player.x,
-            y: (Math.random() - 0.5) * 3000 + player.y,
+            x: (Math.random() - 0.5) * 3000,
+            y: (Math.random() - 0.5) * 3000,
             radius: Math.random() * 15 + 10
         });
     }
@@ -168,16 +224,68 @@ function generateWorld() {
     spawnMonsters();
 }
 
+function rollNightEvent() {
+
+    bloodMoon = Math.random() < 0.15;
+    fogNight = Math.random() < 0.25;
+
+    const eventText =
+        document.getElementById("eventText");
+
+    if (bloodMoon) {
+
+        eventText.innerText = "BLOOD MOON";
+        eventText.style.color = "#ff0000";
+
+    } else if (fogNight) {
+
+        eventText.innerText = "HEAVY FOG";
+        eventText.style.color = "#bbbbbb";
+
+    } else {
+
+        eventText.innerText = "";
+    }
+}
+
 function spawnMonsters() {
 
     monsters = [];
 
-    for (let i = 0; i < 20; i++) {
+    let count = bloodMoon ? 40 : 20;
+
+    for (let i = 0; i < count; i++) {
 
         monsters.push({
-            x: (Math.random() - 0.5) * 3000 + player.x,
-            y: (Math.random() - 0.5) * 3000 + player.y,
-            speed: 1.2 + Math.random() * 0.8
+
+            x: (Math.random() - 0.5) * 3000,
+            y: (Math.random() - 0.5) * 3000,
+
+            speed:
+                bloodMoon
+                ? 2.5 + Math.random()
+                : 1.2 + Math.random() * 0.8,
+
+            type:
+                Math.random() < 0.2
+                ? "fast"
+                : "normal"
+        });
+    }
+
+    pickups = [];
+
+    for (let i = 0; i < 10; i++) {
+
+        pickups.push({
+
+            x: (Math.random() - 0.5) * 2500,
+            y: (Math.random() - 0.5) * 2500,
+
+            type:
+                Math.random() < 0.5
+                ? "battery"
+                : "medkit"
         });
     }
 }
@@ -193,44 +301,66 @@ setInterval(() => {
     if (timeRemaining <= 0) {
 
         isDaytime = !isDaytime;
+
         timeRemaining = 30;
 
         if (!isDaytime) {
 
             currentNight++;
 
-            if (currentNight > 99) {
-                alert("YOU SURVIVED ALL 99 NIGHTS!");
-                currentNight = 1;
-            }
+            rollNightEvent();
 
             spawnMonsters();
 
             document.getElementById("ui").innerText =
                 "NIGHT " + currentNight + " / 99";
 
-            document.getElementById("ui").style.color = "#ff3333";
+            document.getElementById("ui").style.color =
+                "#ff3333";
 
         } else {
 
             document.getElementById("ui").innerText =
                 "DAYTIME - SAFE";
 
-            document.getElementById("ui").style.color = "#33ff33";
+            document.getElementById("ui").style.color =
+                "#33ff33";
         }
     }
 
-    const phaseName = isDaytime ? "Night" : "Day";
-
     document.getElementById("timer").innerText =
-        `Time until ${phaseName}: ${timeRemaining}s`;
+        `Time until ${isDaytime ? "Night" : "Day"}: ${timeRemaining}s`;
 
 }, 1000);
 
-// ================= INPUT EVENTS =================
+// ================= INPUT =================
 
 window.addEventListener("keydown", e => {
+
     keys[e.key.toLowerCase()] = true;
+
+    // USE BATTERY
+
+    if (e.key.toLowerCase() === "f") {
+
+        if (batteryPacks > 0 &&
+            flashlightBattery < 100) {
+
+            batteryPacks--;
+            flashlightBattery = 100;
+        }
+    }
+
+    // USE MEDKIT
+
+    if (e.key.toLowerCase() === "q") {
+
+        if (medkits > 0) {
+
+            medkits--;
+            stamina = 100;
+        }
+    }
 });
 
 window.addEventListener("keyup", e => {
@@ -243,7 +373,7 @@ window.addEventListener("mousemove", e => {
     mouse.y = e.clientY;
 });
 
-// ================= SHOOTING =================
+// ================= SHOOT =================
 
 window.addEventListener("mousedown", () => {
 
@@ -252,6 +382,7 @@ window.addEventListener("mousedown", () => {
     if (reloading) return;
 
     if (ammo <= 0) {
+
         startReload();
         return;
     }
@@ -259,9 +390,12 @@ window.addEventListener("mousedown", () => {
     ammo--;
 
     darts.push({
+
         x: player.x,
         y: player.y,
+
         angle: player.angle,
+
         speed: 12,
         life: 100
     });
@@ -299,15 +433,16 @@ function resetGame() {
         alert("The creatures caught you!");
 
         currentNight = 1;
+
         isDaytime = false;
+
         timeRemaining = 30;
 
-        player.x = canvas.width / 2;
-        player.y = canvas.height / 2;
+        stamina = 100;
 
-        stamina = MAX_STAMINA;
+        flashlightBattery = 100;
 
-        ammo = MAX_AMMO;
+        ammo = 5;
 
         generateWorld();
 
@@ -322,10 +457,7 @@ function update() {
 
     if (gameOver) return;
 
-    // ===== MOVEMENT =====
-
-    let dx = 0;
-    let dy = 0;
+    // ===== STAMINA =====
 
     let sprinting =
         keys["shift"] && stamina > 0;
@@ -333,20 +465,46 @@ function update() {
     let speed = sprinting ? 5.5 : 3;
 
     if (sprinting) {
+
         stamina -= 0.6;
+
     } else {
+
         stamina += 0.3;
     }
 
-    stamina = Math.max(
-        0,
-        Math.min(MAX_STAMINA, stamina)
-    );
+    stamina =
+        Math.max(
+            0,
+            Math.min(MAX_STAMINA, stamina)
+        );
 
-    if (keys["w"] || keys["arrowup"]) dy -= speed;
-    if (keys["s"] || keys["arrowdown"]) dy += speed;
-    if (keys["a"] || keys["arrowleft"]) dx -= speed;
-    if (keys["d"] || keys["arrowright"]) dx += speed;
+    // ===== BATTERY =====
+
+    if (!isDaytime) {
+
+        flashlightBattery -= 0.02;
+
+    } else {
+
+        flashlightBattery += 0.05;
+    }
+
+    flashlightBattery =
+        Math.max(
+            0,
+            Math.min(MAX_BATTERY, flashlightBattery)
+        );
+
+    // ===== MOVEMENT =====
+
+    let dx = 0;
+    let dy = 0;
+
+    if (keys["w"]) dy -= speed;
+    if (keys["s"]) dy += speed;
+    if (keys["a"]) dx -= speed;
+    if (keys["d"]) dx += speed;
 
     player.x += dx;
     player.y += dy;
@@ -369,11 +527,10 @@ function update() {
         d.life--;
 
         if (d.life <= 0) {
+
             darts.splice(i, 1);
             continue;
         }
-
-        // HIT MONSTERS
 
         for (let j = monsters.length - 1; j >= 0; j--) {
 
@@ -394,6 +551,32 @@ function update() {
         }
     }
 
+    // ===== PICKUPS =====
+
+    for (let i = pickups.length - 1; i >= 0; i--) {
+
+        let p = pickups[i];
+
+        let dx = p.x - player.x;
+        let dy = p.y - player.y;
+
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 20) {
+
+            if (p.type === "battery") {
+
+                batteryPacks++;
+
+            } else {
+
+                medkits++;
+            }
+
+            pickups.splice(i, 1);
+        }
+    }
+
     // ===== MONSTERS =====
 
     for (let m of monsters) {
@@ -404,15 +587,20 @@ function update() {
         let dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < player.size + 6) {
+
             resetGame();
             return;
         }
 
         if (isDaytime) continue;
 
+        let dynamicRange =
+            FLASHLIGHT_RANGE *
+            (flashlightBattery / 100);
+
         let isLit = false;
 
-        if (dist < FLASHLIGHT_RANGE) {
+        if (dist < dynamicRange) {
 
             let angleToMonster =
                 Math.atan2(dy, dx);
@@ -448,10 +636,35 @@ function update() {
         }
     }
 
+    // ===== CABIN =====
+
+    if (isDaytime) {
+
+        let insideCabin =
+            player.x > cabin.x &&
+            player.x < cabin.x + cabin.width &&
+            player.y > cabin.y &&
+            player.y < cabin.y + cabin.height;
+
+        if (insideCabin) {
+
+            stamina += 0.8;
+            flashlightBattery += 0.3;
+        }
+    }
+
     // ===== UI =====
 
     document.getElementById("stamina").innerText =
         "Stamina: " + Math.floor(stamina);
+
+    document.getElementById("battery").innerText =
+        "Flashlight Battery: "
+        + Math.floor(flashlightBattery)
+        + "%";
+
+    document.getElementById("inventory").innerText =
+        `Medkits: ${medkits} | Batteries: ${batteryPacks}`;
 
     if (!reloading) {
 
@@ -485,6 +698,10 @@ function draw() {
 
     if (!isDaytime) {
 
+        let dynamicRange =
+            FLASHLIGHT_RANGE *
+            (flashlightBattery / 100);
+
         ctx.beginPath();
 
         ctx.moveTo(player.x, player.y);
@@ -492,7 +709,7 @@ function draw() {
         ctx.arc(
             player.x,
             player.y,
-            FLASHLIGHT_RANGE,
+            dynamicRange,
             player.angle - FLASHLIGHT_ANGLE_HALF,
             player.angle + FLASHLIGHT_ANGLE_HALF
         );
@@ -506,7 +723,7 @@ function draw() {
                 10,
                 player.x,
                 player.y,
-                FLASHLIGHT_RANGE
+                dynamicRange
             );
 
         gradient.addColorStop(
@@ -520,6 +737,7 @@ function draw() {
         );
 
         ctx.fillStyle = gradient;
+
         ctx.fill();
     }
 
@@ -538,7 +756,42 @@ function draw() {
         );
 
         ctx.fillStyle =
-            isDaytime ? "#2d4a2d" : "#142414";
+            isDaytime
+            ? "#2d4a2d"
+            : "#142414";
+
+        ctx.fill();
+    }
+
+    // ===== CABIN =====
+
+    ctx.fillStyle = "#5a3a1a";
+
+    ctx.fillRect(
+        cabin.x,
+        cabin.y,
+        cabin.width,
+        cabin.height
+    );
+
+    // ===== PICKUPS =====
+
+    for (let p of pickups) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            6,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            p.type === "battery"
+            ? "#ffff44"
+            : "#44ff44";
 
         ctx.fill();
     }
@@ -549,7 +802,13 @@ function draw() {
 
         ctx.beginPath();
 
-        ctx.arc(d.x, d.y, 3, 0, Math.PI * 2);
+        ctx.arc(
+            d.x,
+            d.y,
+            3,
+            0,
+            Math.PI * 2
+        );
 
         ctx.fillStyle = "#66ccff";
 
@@ -566,15 +825,29 @@ function draw() {
 
             ctx.beginPath();
 
-            ctx.arc(m.x, m.y, 8, 0, Math.PI * 2);
+            ctx.arc(
+                m.x,
+                m.y,
+                8,
+                0,
+                Math.PI * 2
+            );
 
             ctx.fill();
         }
 
         ctx.shadowBlur = 10;
-        ctx.shadowColor = "#ff0000";
 
-        ctx.fillStyle = "#ff1111";
+        if (m.type === "fast") {
+
+            ctx.shadowColor = "#00ffff";
+            ctx.fillStyle = "#00ffff";
+
+        } else {
+
+            ctx.shadowColor = "#ff0000";
+            ctx.fillStyle = "#ff1111";
+        }
 
         ctx.beginPath();
         ctx.arc(m.x - 3, m.y, 2, 0, Math.PI * 2);
@@ -603,10 +876,28 @@ function draw() {
 
     ctx.fill();
 
+    // ===== FOG =====
+
+    if (fogNight && !isDaytime) {
+
+        ctx.fillStyle =
+            "rgba(180,180,180,0.08)";
+
+        for (let i = 0; i < 6; i++) {
+
+            ctx.fillRect(
+                -2000,
+                -2000,
+                5000,
+                5000
+            );
+        }
+    }
+
     ctx.restore();
 }
 
-// ================= GAME LOOP =================
+// ================= LOOP =================
 
 function loop() {
 
