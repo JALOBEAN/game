@@ -1,0 +1,700 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Google Easter Eggs</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: black;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    text-align: center;
+    padding: 28px 20px 15px;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 25px;
+    padding: 25px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.panel {
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.title {
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+
+/* =========================
+   CODE BOX
+   ========================= */
+
+.code-box {
+    width: 100%;
+    height: 250px;
+
+    resize: vertical;
+
+    background: #050505;
+    color: #00ff66;
+
+    border: 2px solid #444;
+    border-radius: 10px;
+
+    padding: 15px;
+
+    font-family: Consolas, monospace;
+    font-size: 18px;
+
+    outline: none;
+}
+
+
+/* =========================
+   DAILY EASTER EGG
+   ========================= */
+
+.daily-card {
+    min-height: 230px;
+
+    background: #070707;
+
+    border: 2px solid #444;
+    border-radius: 12px;
+
+    padding: 20px;
+}
+
+#eggName {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+#eggDescription {
+    color: #ddd;
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+
+/* =========================
+   SECRET EDITOR
+   ========================= */
+
+#editor {
+    display: none;
+    margin-top: 25px;
+}
+
+#docEditor {
+    width: 100%;
+    min-height: 350px;
+
+    background: #050505;
+    color: white;
+
+    border: 2px solid #444;
+    border-radius: 10px;
+
+    padding: 15px;
+
+    font-family: Consolas, monospace;
+    font-size: 16px;
+
+    resize: vertical;
+
+    outline: none;
+}
+
+button {
+    width: 100%;
+
+    margin-top: 15px;
+
+    padding: 12px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: white;
+    color: black;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ddd;
+}
+
+#status {
+    margin-top: 10px;
+    color: #7cffaa;
+    min-height: 20px;
+}
+
+
+/* =========================
+   NO EGGS MESSAGE
+   ========================= */
+
+.no-eggs {
+    color: #aaa;
+    font-size: 20px;
+    line-height: 1.5;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 800px) {
+
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    header {
+        font-size: 30px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<header>
+    Google Easter Eggs
+</header>
+
+
+<div class="layout">
+
+
+<!-- =========================
+     LEFT SIDE
+     ========================= -->
+
+<section class="panel">
+
+    <div class="title">
+        Code Box
+    </div>
+
+
+    <textarea
+        id="codeBox"
+        class="code-box"
+        spellcheck="false"
+        placeholder="Enter code..."
+    ></textarea>
+
+
+    <!-- SECRET EDITOR -->
+
+    <div id="editor">
+
+        <div class="title">
+            Easter Egg Document
+        </div>
+
+
+        <textarea
+            id="docEditor"
+            spellcheck="false"
+        ></textarea>
+
+
+        <button id="saveBtn">
+            Save Document
+        </button>
+
+
+        <div id="status"></div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================
+     RIGHT SIDE
+     ========================= -->
+
+<aside class="panel">
+
+    <div class="title">
+        Daily Easter Egg
+    </div>
+
+
+    <div class="daily-card">
+
+        <div id="eggName"></div>
+
+        <div id="eggDescription"></div>
+
+    </div>
+
+</aside>
+
+</div>
+
+
+
+<script>
+
+
+/* ==================================================
+   STARTING EASTER EGG DOCUMENT
+   ================================================== */
+
+const defaultDoc = `1. Google in 1998
+   Search for Google in 1998 to see an old-style Google homepage.
+
+2. Do a barrel roll
+   Search for “do a barrel roll” and the results page spins.
+
+3. Google Gravity
+   Try the Google Gravity trick to make the page elements fall.
+
+4. Minecraft mining
+   Search for Minecraft-related mining content for an interactive surprise.`;
+
+
+
+/* ==================================================
+   PAGE ELEMENTS
+   ================================================== */
+
+const codeBox =
+    document.getElementById("codeBox");
+
+const editor =
+    document.getElementById("editor");
+
+const docEditor =
+    document.getElementById("docEditor");
+
+const status =
+    document.getElementById("status");
+
+const eggName =
+    document.getElementById("eggName");
+
+const eggDescription =
+    document.getElementById("eggDescription");
+
+
+
+/* ==================================================
+   LOAD DOCUMENT
+   ================================================== */
+
+function loadDocument() {
+
+    let saved =
+        localStorage.getItem(
+            "googleEasterEggDocument"
+        );
+
+
+    if (saved === null) {
+
+        localStorage.setItem(
+            "googleEasterEggDocument",
+            defaultDoc
+        );
+
+        saved = defaultDoc;
+    }
+
+
+    return saved;
+}
+
+
+
+/* ==================================================
+   READ EGGS FROM DOCUMENT
+   ================================================== */
+
+function getEggs() {
+
+    const text =
+        loadDocument();
+
+
+    const blocks =
+        text
+        .split(/\n\s*\n/)
+        .map(block => block.trim())
+        .filter(block => block.length > 0);
+
+
+    const eggs = [];
+
+
+    blocks.forEach(block => {
+
+        const lines =
+            block
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+
+
+        if (lines.length === 0) {
+            return;
+        }
+
+
+        let name =
+            lines[0]
+            .replace(/^\d+\.\s*/, "");
+
+
+        let description =
+            lines
+            .slice(1)
+            .join(" ");
+
+
+        if (description === "") {
+
+            description =
+                "No description added yet.";
+
+        }
+
+
+        eggs.push({
+
+            name: name,
+
+            description: description
+
+        });
+
+    });
+
+
+    return eggs;
+}
+
+
+
+/* ==================================================
+   GET THE FIRST DAY OF THE DAILY SYSTEM
+   ==================================================
+
+   This date is saved permanently.
+
+   Example:
+
+   September 12 = Day 0
+   September 13 = Day 1
+   September 14 = Day 2
+   September 15 = Day 3
+
+   It does NOT reset when you close the website.
+   ================================================== */
+
+function getDailyStartDate() {
+
+    let saved =
+        localStorage.getItem(
+            "googleEasterEggDailyStart"
+        );
+
+
+    if (saved === null) {
+
+        const today =
+            new Date();
+
+
+        /*
+           Save only the calendar date.
+           This means the daily egg changes
+           according to the user's local date.
+        */
+
+        saved =
+            today.getFullYear()
+            + "-"
+            + String(
+                today.getMonth() + 1
+            ).padStart(2, "0")
+            + "-"
+            + String(
+                today.getDate()
+            ).padStart(2, "0");
+
+
+        localStorage.setItem(
+            "googleEasterEggDailyStart",
+            saved
+        );
+    }
+
+
+    return saved;
+}
+
+
+
+/* ==================================================
+   GET TODAY'S DAY NUMBER
+   ================================================== */
+
+function getDailyNumber() {
+
+    const startString =
+        getDailyStartDate();
+
+
+    const startParts =
+        startString.split("-");
+
+
+    const start =
+        new Date(
+            Number(startParts[0]),
+            Number(startParts[1]) - 1,
+            Number(startParts[2])
+        );
+
+
+    const today =
+        new Date();
+
+
+    /*
+       Midnight today.
+    */
+
+    const todayOnly =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        );
+
+
+    /*
+       Number of whole days since
+       the Daily Easter Egg system started.
+    */
+
+    const milliseconds =
+        todayOnly.getTime()
+        - start.getTime();
+
+
+    const millisecondsPerDay =
+        1000 * 60 * 60 * 24;
+
+
+    return Math.floor(
+        milliseconds / millisecondsPerDay
+    );
+}
+
+
+
+/* ==================================================
+   SHOW TODAY'S EASTER EGG
+   ================================================== */
+
+function showDailyEgg() {
+
+    const eggs =
+        getEggs();
+
+
+    /*
+       NO EGGS
+    */
+
+    if (eggs.length === 0) {
+
+        eggName.textContent = "";
+
+        eggDescription.innerHTML =
+            `<div class="no-eggs">
+                More easter eggs being found.
+            </div>`;
+
+        return;
+    }
+
+
+    /*
+       Get the number of days since
+       the Daily Easter Egg system started.
+    */
+
+    const dayNumber =
+        getDailyNumber();
+
+
+    /*
+       Select the egg corresponding
+       to today's position in the list.
+
+       Day 0 = egg 1
+       Day 1 = egg 2
+       Day 2 = egg 3
+       Day 3 = egg 4
+
+       Once it reaches the end,
+       it starts at the beginning again.
+    */
+
+    const eggIndex =
+        dayNumber % eggs.length;
+
+
+    const chosen =
+        eggs[eggIndex];
+
+
+    eggName.textContent =
+        chosen.name;
+
+
+    eggDescription.textContent =
+        chosen.description;
+}
+
+
+
+/* ==================================================
+   SECRET CODE
+   ==================================================
+
+   The secret code is "rerere".
+
+   It is intentionally NOT written anywhere
+   visible on the website.
+   ================================================== */
+
+codeBox.addEventListener(
+    "input",
+    function() {
+
+        const entered =
+            codeBox.value
+            .trim()
+            .toLowerCase();
+
+
+        if (entered === "rerere") {
+
+            editor.style.display =
+                "block";
+
+
+            docEditor.value =
+                loadDocument();
+
+
+            status.textContent =
+                "Document editor unlocked.";
+
+        }
+
+    }
+);
+
+
+
+/* ==================================================
+   SAVE DOCUMENT
+   ================================================== */
+
+document
+.getElementById("saveBtn")
+.addEventListener(
+    "click",
+    function() {
+
+        /*
+           Save the edited document.
+        */
+
+        localStorage.setItem(
+            "googleEasterEggDocument",
+            docEditor.value
+        );
+
+
+        status.textContent =
+            "Document saved permanently.";
+
+
+        /*
+           Re-read the document so any
+           changes immediately affect the
+           Daily Easter Egg.
+        */
+
+        showDailyEgg();
+
+    }
+);
+
+
+
+/* ==================================================
+   START
+   ================================================== */
+
+loadDocument();
+
+getDailyStartDate();
+
+showDailyEgg();
+
+
+</script>
+
+</body>
+</html>
+```
