@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,693 +7,710 @@
 <title>Google Easter Eggs</title>
 
 <style>
+    * {
+        box-sizing: border-box;
+    }
 
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: black;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-header {
-    text-align: center;
-    padding: 28px 20px 15px;
-    font-size: 40px;
-    font-weight: bold;
-}
-
-.layout {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 25px;
-    padding: 25px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.panel {
-    background: #111;
-    border: 2px solid #333;
-    border-radius: 15px;
-    padding: 20px;
-}
-
-.title {
-    font-size: 23px;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-
-/* =========================
-   CODE BOX
-   ========================= */
-
-.code-box {
-    width: 100%;
-    height: 250px;
-
-    resize: vertical;
-
-    background: #050505;
-    color: #00ff66;
-
-    border: 2px solid #444;
-    border-radius: 10px;
-
-    padding: 15px;
-
-    font-family: Consolas, monospace;
-    font-size: 18px;
-
-    outline: none;
-}
-
-
-/* =========================
-   DAILY EASTER EGG
-   ========================= */
-
-.daily-card {
-    min-height: 230px;
-
-    background: #070707;
-
-    border: 2px solid #444;
-    border-radius: 12px;
-
-    padding: 20px;
-}
-
-#eggName {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-#eggDescription {
-    color: #ddd;
-    font-size: 17px;
-    line-height: 1.5;
-}
-
-
-/* =========================
-   SECRET EDITOR
-   ========================= */
-
-#editor {
-    display: none;
-    margin-top: 25px;
-}
-
-#docEditor {
-    width: 100%;
-    min-height: 350px;
-
-    background: #050505;
-    color: white;
-
-    border: 2px solid #444;
-    border-radius: 10px;
-
-    padding: 15px;
-
-    font-family: Consolas, monospace;
-    font-size: 16px;
-
-    resize: vertical;
-
-    outline: none;
-}
-
-button {
-    width: 100%;
-
-    margin-top: 15px;
-
-    padding: 12px;
-
-    border: none;
-    border-radius: 9px;
-
-    background: white;
-    color: black;
-
-    font-size: 16px;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-button:hover {
-    background: #ddd;
-}
-
-#status {
-    margin-top: 10px;
-    color: #7cffaa;
-    min-height: 20px;
-}
-
-
-/* =========================
-   NO EGGS MESSAGE
-   ========================= */
-
-.no-eggs {
-    color: #aaa;
-    font-size: 20px;
-    line-height: 1.5;
-}
-
-
-/* =========================
-   MOBILE
-   ========================= */
-
-@media (max-width: 800px) {
-
-    .layout {
-        grid-template-columns: 1fr;
+    body {
+        margin: 0;
+        background: #000;
+        color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        min-height: 100vh;
     }
 
     header {
-        font-size: 30px;
+        text-align: center;
+        padding: 25px 10px;
+        border-bottom: 1px solid #333;
     }
 
-}
+    header h1 {
+        margin: 0;
+        font-size: 42px;
+    }
 
+    .container {
+        display: flex;
+        gap: 25px;
+        padding: 25px;
+        max-width: 1400px;
+        margin: auto;
+    }
+
+    .box {
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 0 15px rgba(255,255,255,0.05);
+    }
+
+    .left {
+        width: 60%;
+    }
+
+    .right {
+        width: 40%;
+    }
+
+    .box h2 {
+        margin-top: 0;
+        font-size: 25px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 12px;
+    }
+
+    #document {
+        min-height: 400px;
+        white-space: pre-wrap;
+        line-height: 1.6;
+        font-size: 17px;
+    }
+
+    .egg {
+        background: #191919;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 15px;
+    }
+
+    .egg h3 {
+        margin-top: 0;
+        font-size: 22px;
+    }
+
+    .egg p {
+        line-height: 1.5;
+    }
+
+    .editor {
+        display: none;
+        margin-top: 20px;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 350px;
+        resize: vertical;
+        background: #050505;
+        color: white;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 15px;
+        font-family: monospace;
+        font-size: 15px;
+    }
+
+    input {
+        width: 100%;
+        background: #050505;
+        color: white;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    button {
+        background: #222;
+        color: white;
+        border: 1px solid #555;
+        border-radius: 8px;
+        padding: 11px 18px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    button:hover {
+        background: #333;
+    }
+
+    .secret-area {
+        margin-top: 30px;
+        border-top: 1px solid #333;
+        padding-top: 20px;
+    }
+
+    .status {
+        margin-top: 10px;
+        color: #aaa;
+        font-size: 14px;
+    }
+
+    .empty {
+        color: #aaa;
+        font-style: italic;
+        padding: 20px 0;
+    }
+
+    @media (max-width: 800px) {
+        .container {
+            flex-direction: column;
+        }
+
+        .left,
+        .right {
+            width: 100%;
+        }
+
+        header h1 {
+            font-size: 32px;
+        }
+    }
 </style>
 </head>
 
-
 <body>
 
-
 <header>
-    Google Easter Eggs
+    <h1>Google Easter Eggs</h1>
 </header>
 
+<div class="container">
 
-<div class="layout">
+    <!-- LEFT SIDE -->
+    <div class="box left">
+        <h2>Easter Egg Document</h2>
 
-
-<!-- =========================
-     LEFT SIDE
-     ========================= -->
-
-<section class="panel">
-
-    <div class="title">
-        Code Box
-    </div>
-
-
-    <textarea
-        id="codeBox"
-        class="code-box"
-        spellcheck="false"
-        placeholder="Enter code..."
-    ></textarea>
-
-
-    <!-- SECRET EDITOR -->
-
-    <div id="editor">
-
-        <div class="title">
-            Easter Egg Document
+        <div id="document">
+            Loading...
         </div>
 
+        <!-- SECRET EDITOR -->
+        <div class="secret-area">
+            <input
+                type="password"
+                id="secretInput"
+                placeholder="Enter code"
+            >
 
-        <textarea
-            id="docEditor"
-            spellcheck="false"
-        ></textarea>
+            <button onclick="checkSecret()">Unlock Editor</button>
 
+            <div class="editor" id="editor">
+                <h2>Edit Easter Eggs</h2>
 
-        <button id="saveBtn">
-            Save Document
-        </button>
+                <textarea id="editorText"></textarea>
 
+                <br><br>
 
-        <div id="status"></div>
+                <button onclick="saveEggs()">Save Changes</button>
 
-    </div>
-
-</section>
-
-
-
-<!-- =========================
-     RIGHT SIDE
-     ========================= -->
-
-<aside class="panel">
-
-    <div class="title">
-        Daily Easter Egg
+                <div class="status" id="saveStatus"></div>
+            </div>
+        </div>
     </div>
 
 
-    <div class="daily-card">
+    <!-- RIGHT SIDE -->
+    <div class="box right">
+        <h2>Daily Easter Egg</h2>
 
-        <div id="eggName"></div>
-
-        <div id="eggDescription"></div>
-
+        <div id="dailyEgg">
+            Loading...
+        </div>
     </div>
-
-</aside>
 
 </div>
 
 
-
 <script>
 
+/*
+=========================================================
+SUPABASE SETTINGS
+=========================================================
 
-/* ==================================================
-   STARTING EASTER EGG DOCUMENT
-   ================================================== */
+We will fill these in after connecting your website
+to the Supabase project.
 
-const defaultDoc = `1. Google in 1998
-   Search for Google in 1998 to see an old-style Google homepage.
+DO NOT change anything else yet.
+=========================================================
+*/
 
-2. Do a barrel roll
-   Search for “do a barrel roll” and the results page spins.
-
-3. Google Gravity
-   Try the Google Gravity trick to make the page elements fall.
-
-4. Minecraft mining
-   Search for Minecraft-related mining content for an interactive surprise.`;
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 
+/*
+=========================================================
+DEFAULT EASTER EGGS
+=========================================================
 
-/* ==================================================
-   PAGE ELEMENTS
-   ================================================== */
+These are only here so the page has something to show
+before the Supabase connection is finished.
 
-const codeBox =
-    document.getElementById("codeBox");
+Once Supabase is connected, the online database will
+become the permanent source.
+=========================================================
+*/
 
-const editor =
-    document.getElementById("editor");
-
-const docEditor =
-    document.getElementById("docEditor");
-
-const status =
-    document.getElementById("status");
-
-const eggName =
-    document.getElementById("eggName");
-
-const eggDescription =
-    document.getElementById("eggDescription");
-
-
-
-/* ==================================================
-   LOAD DOCUMENT
-   ================================================== */
-
-function loadDocument() {
-
-    let saved =
-        localStorage.getItem(
-            "googleEasterEggDocument"
-        );
+const defaultEggs = [
+    {
+        name: "Do a Barrel Roll",
+        description: "Search Google for \"do a barrel roll\" and the page spins around."
+    },
+    {
+        name: "Google in 1998",
+        description: "Search Google for \"Google in 1998\" to see a retro version of Google."
+    },
+    {
+        name: "Google Gravity",
+        description: "Google Gravity makes the Google page fall apart and drop onto the screen."
+    },
+    {
+        name: "Minecraft",
+        description: "Google has had Minecraft-themed Easter eggs and interactive search experiences."
+    }
+];
 
 
-    if (saved === null) {
+/*
+=========================================================
+CURRENT EASTER EGGS
+=========================================================
+*/
 
-        localStorage.setItem(
-            "googleEasterEggDocument",
-            defaultDoc
-        );
+let eggs = [];
 
-        saved = defaultDoc;
+
+/*
+=========================================================
+LOAD EASTER EGGS
+=========================================================
+*/
+
+async function loadEggs() {
+
+    /*
+    If Supabase hasn't been connected yet,
+    use the default list.
+    */
+
+    if (
+        SUPABASE_URL === "YOUR_SUPABASE_URL" ||
+        SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY"
+    ) {
+        eggs = defaultEggs;
+        displayEverything();
+        return;
     }
 
 
-    return saved;
+    try {
+
+        const response = await fetch(
+            SUPABASE_URL +
+            "/rest/v1/easter_eggs?select=id,data&limit=1",
+            {
+                headers: {
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization": "Bearer " + SUPABASE_ANON_KEY
+                }
+            }
+        );
+
+
+        if (!response.ok) {
+            throw new Error("Database request failed.");
+        }
+
+
+        const result = await response.json();
+
+
+        if (result.length === 0) {
+            eggs = [];
+        }
+        else if (Array.isArray(result[0].data)) {
+            eggs = result[0].data;
+        }
+        else {
+            eggs = [];
+        }
+
+
+        displayEverything();
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        eggs = defaultEggs;
+
+        displayEverything();
+    }
 }
 
 
+/*
+=========================================================
+DISPLAY DOCUMENT
+=========================================================
+*/
 
-/* ==================================================
-   READ EGGS FROM DOCUMENT
-   ================================================== */
+function displayDocument() {
 
-function getEggs() {
+    const documentBox = document.getElementById("document");
 
-    const text =
-        loadDocument();
+    if (eggs.length === 0) {
 
+        documentBox.innerHTML =
+            '<div class="empty">More easter eggs being found.</div>';
 
-    const blocks =
-        text
-        .split(/\n\s*\n/)
-        .map(block => block.trim())
-        .filter(block => block.length > 0);
-
-
-    const eggs = [];
+        return;
+    }
 
 
-    blocks.forEach(block => {
-
-        const lines =
-            block
-            .split("\n")
-            .map(line => line.trim())
-            .filter(line => line.length > 0);
+    documentBox.innerHTML = "";
 
 
-        if (lines.length === 0) {
-            return;
-        }
+    eggs.forEach((egg, index) => {
 
+        const eggBox = document.createElement("div");
 
-        let name =
-            lines[0]
-            .replace(/^\d+\.\s*/, "");
+        eggBox.className = "egg";
 
+        const title = document.createElement("h3");
 
-        let description =
-            lines
-            .slice(1)
-            .join(" ");
+        title.textContent =
+            (index + 1) + ". " + egg.name;
 
+        const description = document.createElement("p");
 
-        if (description === "") {
+        description.textContent =
+            egg.description;
 
-            description =
-                "No description added yet.";
+        eggBox.appendChild(title);
 
-        }
+        eggBox.appendChild(description);
 
-
-        eggs.push({
-
-            name: name,
-
-            description: description
-
-        });
-
+        documentBox.appendChild(eggBox);
     });
-
-
-    return eggs;
 }
 
 
+/*
+=========================================================
+DAILY EASTER EGG
+=========================================================
+*/
 
-/* ==================================================
-   GET THE FIRST DAY OF THE DAILY SYSTEM
-   ==================================================
+function getTodayNumber() {
 
-   This date is saved permanently.
+    const now = new Date();
 
-   Example:
+    const start = new Date(
+        now.getFullYear(),
+        0,
+        0
+    );
 
-   September 12 = Day 0
-   September 13 = Day 1
-   September 14 = Day 2
-   September 15 = Day 3
+    const difference =
+        now - start;
 
-   It does NOT reset when you close the website.
-   ================================================== */
-
-function getDailyStartDate() {
-
-    let saved =
-        localStorage.getItem(
-            "googleEasterEggDailyStart"
-        );
-
-
-    if (saved === null) {
-
-        const today =
-            new Date();
-
-
-        /*
-           Save only the calendar date.
-           This means the daily egg changes
-           according to the user's local date.
-        */
-
-        saved =
-            today.getFullYear()
-            + "-"
-            + String(
-                today.getMonth() + 1
-            ).padStart(2, "0")
-            + "-"
-            + String(
-                today.getDate()
-            ).padStart(2, "0");
-
-
-        localStorage.setItem(
-            "googleEasterEggDailyStart",
-            saved
-        );
-    }
-
-
-    return saved;
-}
-
-
-
-/* ==================================================
-   GET TODAY'S DAY NUMBER
-   ================================================== */
-
-function getDailyNumber() {
-
-    const startString =
-        getDailyStartDate();
-
-
-    const startParts =
-        startString.split("-");
-
-
-    const start =
-        new Date(
-            Number(startParts[0]),
-            Number(startParts[1]) - 1,
-            Number(startParts[2])
-        );
-
-
-    const today =
-        new Date();
-
-
-    /*
-       Midnight today.
-    */
-
-    const todayOnly =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate()
-        );
-
-
-    /*
-       Number of whole days since
-       the Daily Easter Egg system started.
-    */
-
-    const milliseconds =
-        todayOnly.getTime()
-        - start.getTime();
-
-
-    const millisecondsPerDay =
+    const oneDay =
         1000 * 60 * 60 * 24;
 
-
     return Math.floor(
-        milliseconds / millisecondsPerDay
+        difference / oneDay
     );
 }
 
 
+function displayDailyEgg() {
 
-/* ==================================================
-   SHOW TODAY'S EASTER EGG
-   ================================================== */
+    const dailyBox =
+        document.getElementById("dailyEgg");
 
-function showDailyEgg() {
-
-    const eggs =
-        getEggs();
-
-
-    /*
-       NO EGGS
-    */
 
     if (eggs.length === 0) {
 
-        eggName.textContent = "";
-
-        eggDescription.innerHTML =
-            `<div class="no-eggs">
-                More easter eggs being found.
-            </div>`;
+        dailyBox.innerHTML =
+            '<div class="empty">More easter eggs being found.</div>';
 
         return;
     }
 
 
     /*
-       Get the number of days since
-       the Daily Easter Egg system started.
+    The day number determines which egg appears.
+
+    January 1 → first egg
+    January 2 → second egg
+    January 3 → third egg
+    etc.
+
+    Once we reach the end, it loops back around.
     */
 
     const dayNumber =
-        getDailyNumber();
+        getTodayNumber();
 
-
-    /*
-       Select the egg corresponding
-       to today's position in the list.
-
-       Day 0 = egg 1
-       Day 1 = egg 2
-       Day 2 = egg 3
-       Day 3 = egg 4
-
-       Once it reaches the end,
-       it starts at the beginning again.
-    */
-
-    const eggIndex =
+    const index =
         dayNumber % eggs.length;
 
-
-    const chosen =
-        eggs[eggIndex];
-
-
-    eggName.textContent =
-        chosen.name;
+    const egg =
+        eggs[index];
 
 
-    eggDescription.textContent =
-        chosen.description;
+    dailyBox.innerHTML = "";
+
+
+    const eggBox =
+        document.createElement("div");
+
+    eggBox.className = "egg";
+
+
+    const title =
+        document.createElement("h3");
+
+    title.textContent =
+        egg.name;
+
+
+    const description =
+        document.createElement("p");
+
+    description.textContent =
+        egg.description;
+
+
+    eggBox.appendChild(title);
+
+    eggBox.appendChild(description);
+
+    dailyBox.appendChild(eggBox);
 }
 
 
+/*
+=========================================================
+DISPLAY EVERYTHING
+=========================================================
+*/
 
-/* ==================================================
-   SECRET CODE
-   ==================================================
+function displayEverything() {
 
-   The secret code is "rerere".
+    displayDocument();
 
-   It is intentionally NOT written anywhere
-   visible on the website.
-   ================================================== */
+    displayDailyEgg();
 
-codeBox.addEventListener(
-    "input",
-    function() {
-
-        const entered =
-            codeBox.value
-            .trim()
-            .toLowerCase();
+    document.getElementById("editorText").value =
+        JSON.stringify(eggs, null, 4);
+}
 
 
-        if (entered === "rerere") {
+/*
+=========================================================
+SECRET CODE
+=========================================================
+*/
 
-            editor.style.display =
-                "block";
+function checkSecret() {
+
+    const input =
+        document.getElementById("secretInput").value;
+
+    /*
+    This is the secret code you requested.
+    */
+
+    if (input === "x☭ussr") {
+
+        document.getElementById("editor").style.display =
+            "block";
+
+        document.getElementById("editorText").value =
+            JSON.stringify(eggs, null, 4);
+
+    }
+    else {
+
+        document.getElementById("editor").style.display =
+            "none";
+    }
+}
 
 
-            docEditor.value =
-                loadDocument();
+/*
+=========================================================
+SAVE EASTER EGGS
+=========================================================
+*/
 
+async function saveEggs() {
+
+    const status =
+        document.getElementById("saveStatus");
+
+    try {
+
+        const newEggs =
+            JSON.parse(
+                document.getElementById("editorText").value
+            );
+
+
+        if (!Array.isArray(newEggs)) {
+
+            throw new Error(
+                "The document must be a list of Easter Eggs."
+            );
+        }
+
+
+        eggs = newEggs;
+
+
+        /*
+        If Supabase isn't connected yet,
+        don't attempt the online save.
+        */
+
+        if (
+            SUPABASE_URL === "YOUR_SUPABASE_URL" ||
+            SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY"
+        ) {
 
             status.textContent =
-                "Document editor unlocked.";
+                "Saved on this page for now. Supabase still needs to be connected.";
+
+            displayEverything();
+
+            return;
+        }
+
+
+        /*
+        Find the existing database row.
+        */
+
+        const getResponse =
+            await fetch(
+                SUPABASE_URL +
+                "/rest/v1/easter_eggs?select=id&limit=1",
+                {
+                    headers: {
+                        "apikey": SUPABASE_ANON_KEY,
+                        "Authorization":
+                            "Bearer " + SUPABASE_ANON_KEY
+                    }
+                }
+            );
+
+
+        const rows =
+            await getResponse.json();
+
+
+        /*
+        If there isn't a row yet,
+        create one.
+        */
+
+        if (rows.length === 0) {
+
+            const insertResponse =
+                await fetch(
+                    SUPABASE_URL +
+                    "/rest/v1/easter_eggs",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "apikey": SUPABASE_ANON_KEY,
+                            "Authorization":
+                                "Bearer " + SUPABASE_ANON_KEY,
+                            "Content-Type":
+                                "application/json",
+                            "Prefer":
+                                "return=minimal"
+                        },
+
+                        body: JSON.stringify({
+                            data: eggs
+                        })
+                    }
+                );
+
+
+            if (!insertResponse.ok) {
+                throw new Error("Could not create database row.");
+            }
 
         }
 
-    }
-);
-
-
-
-/* ==================================================
-   SAVE DOCUMENT
-   ================================================== */
-
-document
-.getElementById("saveBtn")
-.addEventListener(
-    "click",
-    function() {
-
         /*
-           Save the edited document.
+        Otherwise update the existing row.
         */
 
-        localStorage.setItem(
-            "googleEasterEggDocument",
-            docEditor.value
-        );
+        else {
+
+            const id =
+                rows[0].id;
+
+
+            const updateResponse =
+                await fetch(
+                    SUPABASE_URL +
+                    "/rest/v1/easter_eggs?id=eq." + id,
+                    {
+                        method: "PATCH",
+
+                        headers: {
+                            "apikey": SUPABASE_ANON_KEY,
+                            "Authorization":
+                                "Bearer " + SUPABASE_ANON_KEY,
+                            "Content-Type":
+                                "application/json",
+                            "Prefer":
+                                "return=minimal"
+                        },
+
+                        body: JSON.stringify({
+                            data: eggs
+                        })
+                    }
+                );
+
+
+            if (!updateResponse.ok) {
+                throw new Error("Could not save database.");
+            }
+        }
 
 
         status.textContent =
-            "Document saved permanently.";
+            "Changes saved successfully!";
 
 
-        /*
-           Re-read the document so any
-           changes immediately affect the
-           Daily Easter Egg.
-        */
-
-        showDailyEgg();
+        displayEverything();
 
     }
-);
+    catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "Error: " + error.message;
+    }
+}
 
 
+/*
+=========================================================
+START
+=========================================================
+*/
 
-/* ==================================================
-   START
-   ================================================== */
-
-loadDocument();
-
-getDailyStartDate();
-
-showDailyEgg();
-
+loadEggs();
 
 </script>
 
 </body>
 </html>
-```
